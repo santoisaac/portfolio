@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Santo Isaac Benyamin — AI Engineer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e13;
+    --panel:#10161d;
+    --panel-2:#161d26;
+    --line:#232b35;
+    --gold:#e3a83b;
+    --gold-dim:#7a5c25;
+    --cyan:#3fd1c9;
+    --magenta:#ff2fb8;
+    --text:#f1f3f5;
+    --muted:#7c8794;
+    --danger:#e0654f;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    overflow-x:hidden;
+  }
+  ::selection{ background:var(--gold); color:#0a0e13; }
+
+  /* ---------------- LIVE CYBERPUNK BACKGROUND ---------------- */
+  #bg-fx{
+    position:fixed;
+    top:-8%; left:-8%; right:-8%; bottom:-8%;
+    z-index:-3;
+    background-image:url('bg-circuit-hd.jpg');
+    background-repeat:repeat;
+    background-size:460px 460px;
+    animation:bgDrift 34s linear infinite;
+    will-change:transform;
+    filter:saturate(1.2) contrast(1.05);
+  }
+  @keyframes bgDrift{
+    0%{ background-position:0 0; }
+    100%{ background-position:460px 460px; }
+  }
+  #bg-tint{
+    position:fixed; inset:0; z-index:-2;
+    background:
+      radial-gradient(circle at 25% 15%, rgba(63,209,201,0.10), transparent 45%),
+      radial-gradient(circle at 78% 85%, rgba(255,47,184,0.08), transparent 45%),
+      linear-gradient(180deg, rgba(6,9,13,0.55), rgba(6,9,13,0.72) 45%, rgba(6,9,13,0.85));
+    pointer-events:none;
+  }
+  #bg-scan{
+    position:fixed; inset:0; z-index:-1;
+    background-image:repeating-linear-gradient(
+      0deg, rgba(255,255,255,0.035) 0px, rgba(255,255,255,0.035) 1px,
+      transparent 1px, transparent 3px
+    );
+    opacity:0.5;
+    pointer-events:none;
+  }
+  @media (prefers-reduced-motion: reduce){
+    #bg-fx{ animation:none; }
+  }
+
+  a{ color:var(--cyan); text-decoration:none; }
+  a:hover{ text-decoration:underline; }
+
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--gold);
+  }
+  h1,h2,h3{ font-family:'Space Grotesk',sans-serif; font-weight:600; }
+  section.block h2{ text-shadow:0 0 24px rgba(63,209,201,0.18); }
+
+  /* ---------------- NAV ---------------- */
+  nav{
+    position:fixed; top:0; left:0; right:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 6vw;
+    background:linear-gradient(to bottom, rgba(10,14,19,0.9), rgba(10,14,19,0));
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+  }
+  nav .mark{
+    display:flex; align-items:center; gap:10px;
+    color:var(--text); font-weight:500; letter-spacing:0.05em;
+  }
+  nav .mark .dot{ width:8px; height:8px; border-radius:50%; background:var(--cyan); box-shadow:0 0 8px var(--cyan); animation:dotPulse 2.4s ease-in-out infinite; }
+  @keyframes dotPulse{ 0%,100%{ opacity:1; } 50%{ opacity:0.35; } }
+  nav .links{ display:flex; gap:24px; }
+  nav .links a{ color:var(--muted); }
+  nav .links a:hover{ color:var(--gold); text-decoration:none; }
+  @media (max-width: 720px){ nav .links{ display:none; } }
+
+
+  /* ---------------- STAGE (pinned scroll animation) ---------------- */
+  #stage-wrap{
+    position:relative;
+    height:230vh;
+  }
+  #stage{
+    position:sticky;
+    top:0; left:0;
+    width:100%; height:100vh;
+    overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+    background:transparent;
+  }
+  .grid-fx{
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size:42px 42px;
+    mask-image: radial-gradient(circle at 50% 50%, black 40%, transparent 78%);
+    pointer-events:none;
+  }
+  .stage-inner{
+    position:relative; z-index:3;
+    width:100%; max-width:1240px;
+    display:flex; align-items:center; justify-content:center;
+    padding:0 6vw;
+  }
+
+  .laptop-scene{
+    position:relative;
+    width:520px; height:440px;
+    flex:0 0 auto;
+    transform-style:preserve-3d;
+    perspective:1500px;
+  }
+  .laptop{
+    position:absolute; inset:0;
+    transform-style:preserve-3d;
+    will-change:transform;
+  }
+
+  /* screen (lid) mount — centers the lid and keeps it perfectly aligned
+     above the keyboard deck below, independent of the open/close rotation */
+  .lid-mount{
+    position:absolute;
+    left:50%; top:0;
+    width:480px; height:300px;
+    transform:translateX(-50%);
+    transform-style:preserve-3d;
+  }
+  .lid{
+    position:absolute; inset:0;
+    transform-origin:bottom center;
+    transform-style:preserve-3d;
+    will-change:transform;
+  }
+  .lid-front, .lid-back{
+    position:absolute; inset:0;
+    border-radius:14px;
+    backface-visibility:hidden;
+  }
+  .lid-back{
+    background:linear-gradient(155deg,#1c242e,#0d1218 70%);
+    border:1px solid var(--line);
+    transform:rotateY(180deg);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .lid-back::after{
+    content:"SIB";
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700; letter-spacing:0.05em;
+    font-size:28px; color:var(--gold-dim);
+    text-shadow:0 0 14px rgba(227,168,59,0.25);
+  }
+  .lid-front{
+    background:#05070a;
+    border:1px solid var(--line);
+    padding:9px;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  /* screen content: profile card (photo + name + location + stats) */
+  .screen{
+    position:relative; width:100%; height:100%;
+    border-radius:6px;
+    background:#050708;
+    overflow:hidden;
+    display:flex;
+    opacity:0;
+    transform:scale(0.97);
+    transition:opacity 0.5s ease, transform 0.5s ease;
+  }
+  .screen.show{ opacity:1; transform:scale(1); }
+  .screen::after{
+    content:"";
+    position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(63,209,201,0.06), transparent 40%, rgba(0,0,0,0.3));
+    pointer-events:none;
+  }
+  .screen-photo{
+    position:relative;
+    width:38%; height:100%;
+    flex:0 0 auto;
+    overflow:hidden;
+  }
+  .screen-photo img{
+    width:100%; height:100%;
+    object-fit:cover;
+    object-position:50% 10%;
+  }
+  .screen-photo::after{
+    content:"";
+    position:absolute; inset:0;
+    background:linear-gradient(90deg, transparent 60%, rgba(5,7,8,0.9));
+  }
+  .screen-content{
+    position:relative;
+    flex:1;
+    padding:6% 6%;
+    display:flex; flex-direction:column; justify-content:center;
+    gap:6px;
+    z-index:2;
+  }
+  .screen-content .s-eyebrow{
+    font-family:'JetBrains Mono',monospace; color:var(--cyan);
+    font-size:0.62vw; min-font-size:8px; letter-spacing:0.12em; text-transform:uppercase;
+  }
+  .screen-content .s-name{
+    font-family:'Space Grotesk',sans-serif; font-weight:700;
+    font-size:clamp(11px, 1.5vw, 20px); color:var(--text); line-height:1.15;
+  }
+  .screen-content .s-role{
+    font-family:'JetBrains Mono',monospace; font-size:clamp(7px, 0.72vw, 10.5px);
+    color:var(--gold); letter-spacing:0.03em;
+  }
+  .screen-content .s-loc{
+    font-size:clamp(7px, 0.7vw, 10.5px); color:var(--muted);
+  }
+  .screen-stats{ display:flex; gap:8px; margin-top:8px; }
+  .stat-box{
+    background:rgba(255,255,255,0.045);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:6% 8%;
+    text-align:left;
+  }
+  .stat-box .num{
+    font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--gold);
+    font-size:clamp(12px, 1.6vw, 22px); line-height:1;
+  }
+  .stat-box .lbl{
+    font-family:'JetBrains Mono',monospace; font-size:clamp(6px, 0.55vw, 8.5px);
+    color:var(--muted); text-transform:uppercase; letter-spacing:0.06em;
+  }
+
+  /* keyboard deck — same width & center as the lid mount so it lines up exactly */
+  .deck{
+    position:absolute;
+    left:50%; bottom:0;
+    width:480px;
+    transform:translateX(-50%);
+    transform-style:preserve-3d;
+  }
+  .keyboard-face{
+    position:relative;
+    width:100%; height:120px;
+    transform-origin:top center;
+    transform:rotateX(58deg);
+    background:linear-gradient(180deg,#161d26,#0b0f14);
+    border:1px solid var(--line);
+    border-radius:0 0 16px 16px;
+    box-shadow:0 40px 60px -25px rgba(0,0,0,0.75);
+    padding:10px 16px;
+  }
+  .keys-grid{
+    width:100%; height:58%;
+    border-radius:4px;
+    background-image:
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0 8%, transparent 8% 10%),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.05) 0 20%, transparent 20% 26%);
+    background-color:rgba(255,255,255,0.02);
+    border:1px solid rgba(255,255,255,0.04);
+  }
+  .trackpad{
+    width:34%; height:26%;
+    margin:8px auto 0;
+    border-radius:5px;
+    background:rgba(255,255,255,0.03);
+    border:1px solid rgba(255,255,255,0.06);
+  }
+  .base-front{
+    position:relative;
+    width:100%; height:14px;
+    background:linear-gradient(180deg,#1c242e,#0c1116);
+    border:1px solid var(--line); border-top:none;
+    border-radius:0 0 14px 14px;
+  }
+  .base-front::before{
+    content:""; position:absolute; left:50%; top:-2px; transform:translateX(-50%);
+    width:70px; height:6px; border-radius:0 0 8px 8px; background:#05070a;
+  }
+
+  /* exploded components */
+  .component{
+    position:absolute;
+    left:50%; top:50%;
+    transform:translate(-50%,-50%) scale(0.4);
+    opacity:0;
+    padding:14px 18px;
+    background:rgba(10,14,19,0.92);
+    border:1px solid var(--line);
+    border-radius:10px;
+    width:190px;
+    will-change:transform, opacity;
+    box-shadow:0 20px 40px -18px rgba(0,0,0,0.6);
+  }
+  .component .part-label{
+    font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--gold);
+    letter-spacing:0.08em; text-transform:uppercase; display:block; margin-bottom:6px;
+  }
+  .component .part-title{ font-family:'Space Grotesk',sans-serif; font-size:17px; font-weight:600; }
+  .component .chip{
+    width:100%; height:36px; border-radius:6px; margin-bottom:10px;
+    background:linear-gradient(135deg, rgba(63,209,201,0.18), rgba(63,209,201,0.03));
+    border:1px solid rgba(63,209,201,0.35);
+  }
+
+  @media (max-width: 720px){
+    .laptop-scene{ width:300px; height:300px; }
+    .lid-mount{ width:280px; height:180px; }
+    .deck{ width:280px; }
+    .keyboard-face{ height:80px; }
+    .component{ width:140px; padding:10px 12px; }
+    .screen-content .s-eyebrow{ font-size:7px; }
+  }
+
+  /* ---------------- CONTENT SECTIONS ---------------- */
+  main{ position:relative; z-index:2; background:transparent; }
+  section.block{
+    padding:110px 8vw;
+    max-width:1100px; margin:0 auto;
+    border-top:1px solid var(--line);
+  }
+  section.block:first-child{ border-top:none; }
+  .block-head{ margin-bottom:48px; }
+  .block-head .eyebrow{ display:block; margin-bottom:12px; }
+  .block-head h2{ font-size:clamp(28px,3.6vw,42px); }
+
+  /* about */
+  .open-to-work{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'JetBrains Mono',monospace; font-size:12.5px; letter-spacing:0.06em;
+    color:var(--cyan); border:1px solid rgba(63,209,201,0.4);
+    background:rgba(63,209,201,0.07);
+    padding:7px 14px; border-radius:999px;
+  }
+  .open-to-work .ping{
+    width:7px; height:7px; border-radius:50%; background:var(--cyan);
+    box-shadow:0 0 8px var(--cyan);
+    animation:dotPulse 2.4s ease-in-out infinite;
+  }
+  .about-links{ display:flex; flex-wrap:wrap; gap:14px; margin-top:28px; }
+  .about-links a{
+    display:flex; flex-direction:column; gap:3px;
+    font-family:'JetBrains Mono',monospace; font-size:13.5px; color:var(--text);
+    background:rgba(10,14,19,0.86); border:1px solid var(--line); border-radius:10px;
+    padding:12px 18px; transition:border-color 0.25s ease, transform 0.25s ease;
+  }
+  .about-links a:hover{ border-color:var(--gold); transform:translateY(-2px); text-decoration:none; }
+  .about-links .al-label{
+    font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted);
+  }
+
+  /* experience */
+  .entry{
+    display:grid; grid-template-columns:200px 1fr; gap:28px;
+    padding:28px 0; border-top:1px solid var(--line);
+  }
+  .entry:first-of-type{ border-top:none; }
+  .entry .when{ font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--muted); }
+  .entry h3{ font-size:20px; margin-bottom:4px; }
+  .entry .org{ color:var(--cyan); font-size:14px; margin-bottom:12px; display:block; }
+  .entry ul{ padding-left:18px; color:var(--muted); line-height:1.75; font-size:15px; }
+  .entry ul li{ margin-bottom:6px; }
+  @media (max-width:720px){ .entry{ grid-template-columns:1fr; gap:8px; } }
+
+  /* projects */
+  .proj-grid{
+    display:grid; grid-template-columns:repeat(2,1fr); gap:20px;
+  }
+  .proj-card{
+    background:rgba(10,14,19,0.86); border:1px solid var(--line); border-radius:12px;
+    padding:24px; transition:border-color 0.25s ease, transform 0.25s ease;
+  }
+  .proj-card:hover{ border-color:var(--gold); transform:translateY(-3px); }
+  .proj-card h3{ font-size:18px; margin-bottom:10px; }
+  .proj-card p{ color:var(--muted); font-size:14.5px; line-height:1.65; }
+  @media (max-width:720px){ .proj-grid{ grid-template-columns:1fr; } }
+
+  /* education */
+  .edu-item{ display:flex; gap:24px; padding:24px 0; border-top:1px solid var(--line); }
+  .edu-item:first-of-type{ border-top:none; }
+  .edu-marker{
+    font-family:'JetBrains Mono',monospace; color:var(--gold); font-size:13px; min-width:130px;
+  }
+  .edu-item h3{ font-size:18px; margin-bottom:4px; }
+  .edu-item .school{ color:var(--muted); font-size:14.5px; }
+
+  /* skills */
+  .skill-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+  .skill-cat{ background:rgba(10,14,19,0.86); border:1px solid var(--line); border-radius:12px; padding:22px; }
+  .skill-cat .eyebrow{ margin-bottom:14px; display:block; }
+  .skill-cat ul{ list-style:none; display:flex; flex-wrap:wrap; gap:8px; }
+  .skill-cat li{
+    font-size:13px; padding:6px 12px; border-radius:999px;
+    background:var(--panel-2); border:1px solid var(--line); color:var(--text);
+  }
+  @media (max-width:900px){ .skill-grid{ grid-template-columns:1fr; } }
+
+  /* certifications */
+  .cert-item{ padding:20px 0; border-top:1px solid var(--line); }
+  .cert-item:first-of-type{ border-top:none; }
+  .cert-item h3{ font-size:16.5px; margin-bottom:4px; }
+  .cert-item .when{ font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--muted); }
+  .cert-item p{ color:var(--muted); font-size:14.5px; margin-top:6px; line-height:1.6; }
+
+  /* hobbies */
+  .hobby-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+  .hobby-card{
+    background:rgba(10,14,19,0.86); border:1px solid var(--line); border-radius:12px;
+    padding:20px; text-align:center;
+  }
+  .hobby-card .glyph{ font-size:24px; margin-bottom:10px; display:block; }
+  .hobby-card h3{ font-size:15.5px; }
+  .hobby-note{ margin-top:22px; font-size:12.5px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+  @media (max-width:720px){ .hobby-grid{ grid-template-columns:1fr 1fr; } }
+
+  /* languages */
+  .lang-row{ display:flex; flex-wrap:wrap; gap:12px; }
+  .lang-pill{
+    font-family:'JetBrains Mono',monospace; font-size:13px;
+    padding:8px 16px; border-radius:8px; border:1px solid var(--line); color:var(--cyan);
+  }
+
+  /* footer / contact */
+  footer{
+    padding:90px 8vw 50px;
+    border-top:1px solid var(--line);
+    background:rgba(10,14,19,0.9);
+  }
+  footer .foot-inner{ max-width:1100px; margin:0 auto; text-align:center; }
+  footer h2{ font-size:clamp(26px,3.6vw,40px); margin-bottom:16px; }
+  footer .contact-row{
+    display:flex; justify-content:center; gap:32px; flex-wrap:wrap;
+    margin:26px 0 10px; font-family:'JetBrains Mono',monospace; font-size:15px;
+  }
+  footer .contact-row a{ color:var(--text); }
+  footer .contact-row a:hover{ color:var(--gold); }
+  footer .social-row{ display:flex; justify-content:center; gap:20px; margin-bottom:34px; font-size:13.5px; }
+  .disclaimer{
+    max-width:640px; margin:0 auto; color:var(--muted); font-size:12.5px; line-height:1.7;
+    border-top:1px solid var(--line); padding-top:24px;
+  }
+  .disclaimer strong{ color:var(--text); }
+  footer .credit{ margin-top:26px; font-size:11.5px; color:#4a525c; font-family:'JetBrains Mono',monospace; }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    .laptop, .lid, .component{ transition:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="bg-fx"></div>
+<div id="bg-tint"></div>
+<div id="bg-scan"></div>
+
+<nav>
+  <div class="mark"><span class="dot"></span> SANTO ISAAC BENYAMIN</div>
+  <div class="links">
+    <a href="#about">About</a>
+    <a href="#experience">Experience</a>
+    <a href="#education">Education</a>
+    <a href="#skills">Skills</a>
+    <a href="#hobbies">Hobbies</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<!-- ============ PINNED LAPTOP SCROLL STAGE ============ -->
+<div id="stage-wrap">
+  <div id="stage">
+    <div class="grid-fx"></div>
+
+    <div class="stage-inner">
+      <div class="laptop-scene">
+        <div class="laptop" id="laptop">
+
+          <div class="lid-mount">
+            <div class="lid" id="lid">
+              <div class="lid-front">
+                <div class="screen" id="screen">
+                  <div class="screen-photo">
+                    <img id="photo" src="profile.jpg" alt="Santo Isaac Benyamin">
+                  </div>
+                  <div class="screen-content">
+                    <span class="s-eyebrow">Portfolio · Online</span>
+                    <span class="s-name">Santo Isaac Benyamin</span>
+                    <span class="s-role">AI Engineer · Data Analyst · Prompt Engineer</span>
+                    <span class="s-loc">Bangalore, India</span>
+                    <div class="screen-stats">
+                      <div class="stat-box">
+                        <div class="num">6</div>
+                        <div class="lbl">Projects</div>
+                      </div>
+                      <div class="stat-box">
+                        <div class="num">11</div>
+                        <div class="lbl">Certificates</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="lid-back"></div>
+            </div>
+          </div>
+
+          <div class="deck">
+            <div class="keyboard-face">
+              <div class="keys-grid"></div>
+              <div class="trackpad"></div>
+            </div>
+            <div class="base-front"></div>
+          </div>
+        </div>
+
+        <!-- exploded components -->
+        <div class="component" id="c-experience">
+          <span class="part-label">Module · 01</span>
+          <div class="chip"></div>
+          <div class="part-title">Experience</div>
+        </div>
+        <div class="component" id="c-education">
+          <span class="part-label">Module · 02</span>
+          <div class="chip"></div>
+          <div class="part-title">Education</div>
+        </div>
+        <div class="component" id="c-skills">
+          <span class="part-label">Module · 03</span>
+          <div class="chip"></div>
+          <div class="part-title">Skills</div>
+        </div>
+        <div class="component" id="c-projects">
+          <span class="part-label">Module · 04</span>
+          <div class="chip"></div>
+          <div class="part-title">Projects</div>
+        </div>
+        <div class="component" id="c-hobbies">
+          <span class="part-label">Module · 05</span>
+          <div class="chip"></div>
+          <div class="part-title">Hobbies</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MAIN CONTENT ============ -->
+<main>
+
+  <section class="block" id="about">
+    <div class="block-head">
+      <span class="eyebrow">About</span>
+      <h2>AI Engineer · Data Analyst · Prompt Engineer</h2>
+    </div>
+
+    <span class="open-to-work"><span class="ping"></span>Open to Work</span>
+
+    <p style="color:var(--muted); font-size:16px; line-height:1.8; max-width:760px; margin-top:18px;">
+      I'm an AI Engineer, Data Analyst, and Prompt Engineer with hands-on experience across machine learning,
+      generative AI, retrieval-augmented generation (RAG), and applied data analytics. I build intelligent,
+      user-facing systems — from NLP chatbots and generative image tools to a network threat-detection system
+      and an AI desktop assistant — backed by certified expertise spanning cybersecurity, ethical hacking,
+      secure software development, threat hunting, and cloud network security alongside core AI/ML engineering
+      skills. Comfortable working across the stack, from data pipelines and model/prompt design to
+      production-ready interfaces.
+    </p>
+
+    <div class="about-links">
+      <a href="mailto:santoisaacb@gmail.com">
+        <span class="al-label">Email</span>santoisaacb@gmail.com
+      </a>
+      <a href="https://linkedin.com/in/santo-isaac-benyamin-a5536a2b7" target="_blank" rel="noopener">
+        <span class="al-label">LinkedIn</span>santo-isaac-benyamin
+      </a>
+      <a href="https://github.com/santoisaac" target="_blank" rel="noopener">
+        <span class="al-label">GitHub</span>santoisaac
+      </a>
+    </div>
+  </section>
+
+  <section class="block" id="experience">
+    <div class="block-head">
+      <span class="eyebrow">Module 01</span>
+      <h2>Experience</h2>
+    </div>
+
+    <div class="entry">
+      <div class="when">May 2026 – Jun 2026</div>
+      <div>
+        <h3>Data Centre Management Intern</h3>
+        <span class="org">Kenn IT Business Solutions, Kodihalli, Bengaluru, Karnataka</span>
+        <ul>
+          <li>Supported the IT infrastructure team in monitoring server racks, UPS systems, and cooling units for consistent uptime.</li>
+          <li>Documented hardware and network asset inventories; assisted with structured cabling and connectivity troubleshooting.</li>
+          <li>Learned how enterprise data is stored, backed up, and managed throughout its lifecycle within a live data center environment.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="entry">
+      <div class="when">Jul 2024 – Aug 2024</div>
+      <div>
+        <h3>Artificial Intelligence Intern</h3>
+        <span class="org">Krish Tec, Coimbatore, Tamil Nadu, India</span>
+        <ul>
+          <li>Developed AI models that improved efficiency by 30% in data processing.</li>
+          <li>Applied Python, TensorFlow, and data visualization techniques across the AI model development workflow.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="block" id="education">
+    <div class="block-head">
+      <span class="eyebrow">Module 02</span>
+      <h2>Education</h2>
+    </div>
+    <div class="edu-item">
+      <div class="edu-marker">Aug 2023 – Jul 2027</div>
+      <div>
+        <h3>B.Tech, Computer Science Engineering (Artificial Intelligence)</h3>
+        <span class="school">Karunya Institute of Technology and Science, Coimbatore</span>
+      </div>
+    </div>
+    <div class="edu-item">
+      <div class="edu-marker">Jul 2021 – May 2023</div>
+      <div>
+        <h3>PUC</h3>
+        <span class="school">St. Joseph's Indian Composite PU College, Bangalore</span>
+        <p style="color:var(--muted); font-size:14px; margin-top:6px;">Earned awards for excellence in English and art.</p>
+      </div>
+    </div>
+
+    <div style="margin-top:56px;">
+      <span class="eyebrow" style="display:block; margin-bottom:16px;">Certifications · 11 total</span>
+
+      <div class="cert-item">
+        <h3>Ethics, Technology and Engineering</h3>
+        <span class="when">Coursera × 4TU Centre for Ethics and Technology (Eindhoven University of Technology) · 2024</span>
+      </div>
+      <div class="cert-item">
+        <h3>Introduction to Retrieval Augmented Generation (RAG)</h3>
+        <span class="when">Coursera × Duke University · 2025</span>
+      </div>
+      <div class="cert-item">
+        <h3>Developing Secure Software</h3>
+        <span class="when">Coursera × Infosec · 2025</span>
+      </div>
+      <div class="cert-item">
+        <h3>Cyber Threat Hunting</h3>
+        <span class="when">Coursera × Infosec · 2025</span>
+      </div>
+      <div class="cert-item">
+        <h3>Ethical Hacking</h3>
+        <span class="when">Coursera × Infosec · 2025</span>
+      </div>
+      <div class="cert-item">
+        <h3>Cloud Network Security</h3>
+        <span class="when">EC-Council / CodeRed · 2025</span>
+      </div>
+      <div class="cert-item">
+        <h3>Threat Detection for Computer Networks</h3>
+        <span class="when">NetAcad (Cisco Networking Academy) · 2025</span>
+      </div>
+      <div class="cert-item">
+        <h3>GenAI Powered Data Analytics Job Simulation</h3>
+        <span class="when">Forage · 2026</span>
+        <p>Completed tasks in exploratory data analysis, AI-driven delinquency prediction, and data storytelling for a collections strategy.</p>
+      </div>
+      <div class="cert-item">
+        <h3>RAG Course for Beginners</h3>
+        <span class="when">Simplilearn SkillUp · 2026</span>
+        <p>Learned the fundamentals of Retrieval-Augmented Generation (RAG), including vector embeddings and retrieval pipelines for context-aware AI systems.</p>
+      </div>
+      <div class="cert-item">
+        <h3>Prompt Engineering for ChatGPT</h3>
+        <span class="when">Great Learning Academy · 2025</span>
+      </div>
+      <div class="cert-item">
+        <h3>Generative AI</h3>
+        <span class="when">Great Learning Academy · 2025</span>
+      </div>
+
+      <div style="margin-top:32px;">
+        <span class="eyebrow" style="display:block; margin-bottom:14px;">Focus areas</span>
+        <div class="lang-row">
+          <span class="lang-pill">Artificial Intelligence</span>
+          <span class="lang-pill">Generative AI</span>
+          <span class="lang-pill">RAG</span>
+          <span class="lang-pill">Prompt Engineering</span>
+          <span class="lang-pill">Cybersecurity</span>
+          <span class="lang-pill">Ethical Hacking</span>
+          <span class="lang-pill">Secure Software Development</span>
+          <span class="lang-pill">Threat Hunting</span>
+          <span class="lang-pill">Network Security</span>
+          <span class="lang-pill">Cloud Security</span>
+          <span class="lang-pill">Data Analytics</span>
+          <span class="lang-pill">AI-Powered Business Analysis</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="skills">
+    <div class="block-head">
+      <span class="eyebrow">Module 03</span>
+      <h2>Skills</h2>
+    </div>
+    <div class="skill-grid">
+      <div class="skill-cat">
+        <span class="eyebrow">Machine Learning &amp; AI</span>
+        <ul>
+          <li>Machine Learning</li><li>Generative AI</li><li>NLP</li>
+          <li>Deep Learning (TensorFlow)</li><li>Deep Learning (PyTorch)</li>
+        </ul>
+      </div>
+      <div class="skill-cat">
+        <span class="eyebrow">Data</span>
+        <ul>
+          <li>Data Analytics</li><li>Data Visualization</li><li>Data Center Operations</li>
+        </ul>
+      </div>
+      <div class="skill-cat">
+        <span class="eyebrow">Development</span>
+        <ul>
+          <li>Full Stack Development</li><li>Python</li><li>Java</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="margin-top:44px;">
+      <span class="eyebrow" style="display:block; margin-bottom:16px;">Languages</span>
+      <div class="lang-row">
+        <span class="lang-pill">English</span>
+        <span class="lang-pill">Kannada</span>
+        <span class="lang-pill">Hindi</span>
+        <span class="lang-pill">Tamil</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="projects">
+    <div class="block-head">
+      <span class="eyebrow">Module 04 · 6 projects</span>
+      <h2>Projects</h2>
+    </div>
+    <div class="proj-grid">
+      <div class="proj-card">
+        <h3>NetGuardian</h3>
+        <p>An AI-powered network threat detection system that analyzes traffic patterns to flag suspicious activity and potential intrusions in real time.</p>
+      </div>
+      <div class="proj-card">
+        <h3>AgentDesk</h3>
+        <p>An AI desktop assistant that helps automate everyday tasks and workflows through natural conversation, built as a featured personal project.</p>
+      </div>
+      <div class="proj-card">
+        <h3>AI Image Generator</h3>
+        <p>A text-to-image generation web app using Stable Diffusion and Hugging Face Diffusers, converting natural language prompts into AI-generated visuals through a Python-based interface.</p>
+      </div>
+      <div class="proj-card">
+        <h3>Rex — The Campus Guide</h3>
+        <p>An AI-powered campus navigation chatbot using NLP and Dialogflow to help students navigate facilities, events, and academic queries through natural conversation.</p>
+      </div>
+      <div class="proj-card">
+        <h3>Emofy — The Healthcare Chatbot</h3>
+        <p>An emotion-aware healthcare chatbot using NLP and sentiment analysis (BERT) to interpret user queries and offer preliminary health guidance and support.</p>
+      </div>
+      <div class="proj-card">
+        <h3>3D Architecture Simulator for Construction</h3>
+        <p>An interactive 3D simulation tool using Three.js and Unity to visualize building designs and support construction planning and material estimation.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="hobbies">
+    <div class="block-head">
+      <span class="eyebrow">Module 05</span>
+      <h2>Hobbies &amp; Interests</h2>
+    </div>
+    <div class="hobby-grid">
+      <div class="hobby-card"><span class="glyph">📷</span><h3>Photography</h3></div>
+      <div class="hobby-card"><span class="glyph">🎨</span><h3>Sketching &amp; Art</h3></div>
+      <div class="hobby-card"><span class="glyph">🕹️</span><h3>Gaming</h3></div>
+      <div class="hobby-card"><span class="glyph">🧠</span><h3>Exploring New AI Tools</h3></div>
+      <div class="hobby-card"><span class="glyph">📚</span><h3>Reading</h3></div>
+      <div class="hobby-card"><span class="glyph">🛠️</span><h3>Building Side Projects</h3></div>
+    </div>
+    <p class="hobby-note">// inferred from your background (art awards, hardware interest) — swap these for your own anytime.</p>
+  </section>
+
+</main>
+
+<footer id="contact">
+  <div class="foot-inner">
+    <span class="eyebrow">Get in touch</span>
+    <h2>Let's build something.</h2>
+    <div class="contact-row">
+      <a href="mailto:santoisaac19@gmail.com">santoisaac19@gmail.com</a>
+      <a href="tel:+917204323191">+91 72043 23191</a>
+    </div>
+    <div class="social-row">
+      <a href="https://linkedin.com/in/santo-isaac-benyamin-a5536a2b7" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://github.com/santoisaac" target="_blank" rel="noopener">GitHub</a>
+    </div>
+    <div class="disclaimer">
+      <strong>Disclaimer:</strong> This portfolio was built from information supplied by Santo Isaac Benyamin.
+      For any further information, verification, or opportunities, please reach out directly via
+      <strong>santoisaac19@gmail.com</strong> or <strong>+91 72043 23191</strong>.
+    </div>
+    <div class="credit">Bangalore, India · Karunya Institute of Technology and Science</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const stageWrap = document.getElementById('stage-wrap');
+  const stage = document.getElementById('stage');
+  const laptop = document.getElementById('laptop');
+  const lid = document.getElementById('lid');
+  const screen = document.getElementById('screen');
+  const bgFx = document.getElementById('bg-fx');
+
+  const parts = {
+    experience: document.getElementById('c-experience'),
+    education:  document.getElementById('c-education'),
+    skills:     document.getElementById('c-skills'),
+    projects:   document.getElementById('c-projects'),
+    hobbies:    document.getElementById('c-hobbies')
+  };
+
+  // target scatter offsets (x%, y%, rotate deg) relative to center, per part
+  const scatter = {
+    experience: {x:-280, y:-160, r:-14},
+    education:  {x:280,  y:-150, r:12},
+    skills:     {x:-320, y:130,  r:10},
+    projects:   {x:320,  y:150,  r:-10},
+    hobbies:    {x:0,    y:260,  r:6}
+  };
+
+  function lerp(a,b,t){ return a + (b-a)*t; }
+  function clamp(v,min,max){ return Math.min(Math.max(v,min),max); }
+  function smooth(t){ return t*t*(3-2*t); }
+
+  function update(){
+    // live background parallax — background shifts at a different rate than content when scrolled
+    const y = window.scrollY || window.pageYOffset;
+    bgFx.style.transform = `translateY(${y * -0.12}px) translateX(${y * 0.03}px)`;
+
+    const rect = stageWrap.getBoundingClientRect();
+    const total = stageWrap.offsetHeight - window.innerHeight;
+    let p = clamp(-rect.top / total, 0, 1);
+
+    // Phase A 0 -> 0.4 : spin + enlarge, lid opens, info panel fades in
+    // Phase C 0.55 -> 1.0 : explode into parts
+
+    const pA = clamp(p / 0.40, 0, 1);
+    const pC = clamp((p - 0.55) / 0.45, 0, 1);
+
+    const easeA = smooth(pA);
+    const easeC = smooth(pC);
+
+    // laptop spin + scale (stays on-screen alongside the info panel, not fullscreen)
+    const scale = lerp(0.6, 2.1, easeA) * (1 - 0.35*easeC);
+    const rotY = lerp(-24, 0, easeA);
+    const rotX = lerp(8, 0, easeA);
+    laptop.style.transform = `scale(${scale}) rotateY(${rotY}deg) rotateX(${rotX}deg)`;
+
+    // lid opens as it enlarges
+    const lidAngle = lerp(100, 0, easeA); // 100deg closed-ish -> 0 open flat
+    lid.style.transform = `rotateX(${-lidAngle}deg)`;
+
+    // screen content appears once mostly open
+    if (pA > 0.6) screen.classList.add('show'); else screen.classList.remove('show');
+
+    // explode components in phase C, and fade laptop away
+    laptop.style.opacity = String(1 - easeC);
+
+    Object.keys(parts).forEach(key=>{
+      const el = parts[key];
+      const s = scatter[key];
+      const tx = lerp(0, s.x, easeC);
+      const ty = lerp(0, s.y, easeC);
+      const rot = lerp(0, s.r, easeC);
+      const scl = lerp(0.4, 1, easeC);
+      el.style.transform = `translate(-50%,-50%) translate(${tx}px, ${ty}px) rotate(${rot}deg) scale(${scl})`;
+      el.style.opacity = String(easeC);
+    });
+  }
+
+  window.addEventListener('scroll', update, {passive:true});
+  window.addEventListener('resize', update);
+  update();
+})();
+</script>
+
+</body>
+</html>
